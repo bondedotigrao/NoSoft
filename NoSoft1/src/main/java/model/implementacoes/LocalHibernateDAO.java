@@ -15,7 +15,6 @@ import org.hibernate.cfg.Configuration;
  */
 public class LocalHibernateDAO implements LocalDAO {
     private SessionFactory sessions;
-    private EntityManager em;
     private static LocalHibernateDAO instance;
     
     public static LocalHibernateDAO getInstance(){
@@ -46,23 +45,68 @@ public class LocalHibernateDAO implements LocalDAO {
             session.close();
         }
     }
+    
     @Override
     public Local recuperar(int codigo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Session session = this.sessions.openSession();
+        
+        try{
+            return (Local) session.createQuery(
+                    "From local Where id_local=" + codigo).getResultList().get(0);
+        }catch(Exception recuperaLocalErorr){
+            System.out.println("Ocorreu um erro ao recuperar um Local.");
+        }finally{
+            session.close();
+        }
+        return null;
     }
 
     @Override
-    public void deletar(Local t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void deletar(Local local) {
+        Session session = this.sessions.openSession();
+        Transaction t = session.beginTransaction();
+        
+        try{
+            session.delete(local);
+            t.commit();
+        }catch(Exception delLocalError){
+            System.out.println(delLocalError.getCause() 
+                    + "\nOcorreu um erro ao deletar um local");
+            t.rollback();
+        }finally{
+            session.close();
+        }
     }
 
     @Override
-    public void alterar(Local t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void alterar(Local local) {
+        Session session = this.sessions.openSession();
+        Transaction t = session.beginTransaction();
+        
+        try{
+            session.update(local);
+            t.commit();
+        }catch(Exception updateLocalError){
+            System.out.println(updateLocalError.getCause() 
+                    + "\nOcorreu um erro ao alterar um local");
+            t.rollback();
+        }finally{
+            session.close();
+        }
     }
 
     @Override
     public List<Local> recuperarTodos() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Session session = this.sessions.openSession();
+        List<Local> listLocal = null;
+        try{
+           listLocal = session.createQuery("From local").getResultList();
+        }catch(Exception recuperaTodosLocaisError){
+            System.out.println(recuperaTodosLocaisError.getCause() +
+                    "\nOcorreu um erro ao recuperar os Locais.");
+        }finally{
+            session.close();
+        }
+        return listLocal;
     }
 }

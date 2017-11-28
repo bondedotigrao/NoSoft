@@ -15,7 +15,6 @@ import org.hibernate.cfg.Configuration;
  */
 public class ArmaHibernateDAO implements ArmaDAO{
     private SessionFactory sessions;
-    private EntityManager em;
     private static ArmaHibernateDAO instance = null;
     
     public static ArmaHibernateDAO getInstance(){
@@ -48,22 +47,65 @@ public class ArmaHibernateDAO implements ArmaDAO{
 
     @Override
     public Arma recuperar(int codigo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Session session = this.sessions.openSession();
+        
+        try{
+            return (Arma) session.createQuery("From arma Where id_arma=" + codigo).getResultList().get(0);
+        }catch(Exception recuperaArmaError){
+            System.out.println("Ocorreu um erro ao recuperar uma Arma.");
+        }finally{
+            session.close();
+        }
+        return null;
     }
 
     @Override
-    public void deletar(Arma t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void deletar(Arma arma) {
+          Session session = this.sessions.openSession();
+        Transaction t = session.beginTransaction();
+        
+        try{
+            session.delete(arma);
+            t.commit();
+        }catch(Exception delArmaError){
+            System.out.println(delArmaError.getCause() 
+                    + "\nOcorreu um erro ao deletar uma Arma!");
+            t.rollback();
+        }finally{
+        session.close();;
+    }
     }
 
     @Override
-    public void alterar(Arma t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void alterar(Arma arma) {
+        Session session = this.sessions.openSession();
+        Transaction t = session.beginTransaction();
+        
+        try{
+            session.update(arma);
+            t.commit();
+        }catch(Exception updateArmaError){
+            System.out.println(updateArmaError.getCause() + 
+                    "\nOcorreu um erro ao alterar uma Arma.");
+            t.rollback();
+        }finally{
+        session.close();;
+    }
     }
 
     @Override
     public List<Arma> recuperarTodos() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Session session = this.sessions.openSession();
+        List<Arma> listArmas = null;
+        
+        try{
+           listArmas = session.createQuery("From arma").getResultList();
+        }catch(Exception recuperaTodasArmasError){
+            System.out.println("Ocorreu um erro ao recuperar todas as Armas.");
+        }finally{
+            session.close();
+        }
+        return listArmas;
     }
     
 }
