@@ -1,7 +1,7 @@
 package view;
 
 import model.Local;
-import model.implementacoes.LocalHibernateDAO;
+import model.implmentacoes.hibernate.LocalHibernateDAO;
 
 /**
  *
